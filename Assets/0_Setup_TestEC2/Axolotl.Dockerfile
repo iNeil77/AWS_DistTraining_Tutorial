@@ -162,15 +162,12 @@ COPY ./reward-bench /workspace/reward-bench
 RUN pip install hatchling \
     && pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu130 \
         --no-build-isolation \
-         --constraint <(echo "torch==2.10.0a0+b558c986e8.nv25.11") \
     && cd /workspace/axolotl \
     && pip install -e ".[ring-flash-attn,deepspeed]" \
         --no-build-isolation \
-        --constraint <(echo "torch==2.10.0a0+b558c986e8.nv25.11") \
     && cd /workspace/reward-bench \
     && pip install -e ".[v1]" \
         --no-build-isolation \
-        --constraint <(echo "torch==2.10.0a0+b558c986e8.nv25.11") \
     && rm -rf /root/.cache/pip
 
 WORKDIR /workspace
