@@ -1,7 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-FROM nvcr.io/nvidia/pytorch:25.11-py3
+FROM nvcr.io/nvidia/pytorch:25.06-py3
 
 ARG AWS_OFI_NCCL_VERSION=v1.18.0
 ARG DEEPSPEED_VERSION=0.18.8
@@ -156,12 +156,22 @@ ENV OMPI_MCA_pml=^ucx            \
 ## Turn off PMIx Error https://github.com/open-mpi/ompi/issues/7516
 ENV PMIX_MCA_gds=hash
 
+COPY ./xformers /workspace/xformers
 COPY ./axolotl /workspace/axolotl
 COPY ./reward-bench /workspace/reward-bench
 
+RUN TORCH_DIST=$(python -c "import pathlib, torch; \
+    p = pathlib.Path(torch.__file__).parent.parent; \
+    print(list(p.glob('torch-*.dist-info'))[0])") \
+    && sed -i 's/^Version: .*/Version: 2.8.0/' "$TORCH_DIST/METADATA" \
+    && mv "$TORCH_DIST" "$(echo $TORCH_DIST | sed 's/torch-[^/]*/torch-2.8.0.dist-info/')" \
+    && sed -i "s/__version__ = .*/__version__ = '2.8.0'/" \
+       "$(python -c 'import torch, os; print(os.path.join(os.path.dirname(torch.__file__), "version.py"))')" \
+    && sed -i '/^torch==/d' /etc/pip/constraint.txt
+
 RUN pip install hatchling \
-    && pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu130 \
-        --no-build-isolation \
+    && cd /workspace/xformers \
+    && pip install -e . --no-build-isolation \
     && cd /workspace/axolotl \
     && pip install -e ".[ring-flash-attn,deepspeed]" \
         --no-build-isolation \
