@@ -15,7 +15,7 @@ enroot import docker://ineil77/axolotl-rm:23032026 --o axolotl-rm.sqsh
 
 ```bash
 # Create the final enroot environment
-enroot create --name axolotl-rm axolotl-rm.sqsh
+enroot create --name Axolotl axolotl-rm.sqsh
 ```
 
 The above steps must be performed on all the EC2 instances that will be used for training, so it is recommended to create a script to automate this process.
