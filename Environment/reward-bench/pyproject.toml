@@ -45,7 +45,7 @@ dependencies = [
     "tabulate",
     "tokenizers",
     "tiktoken",
-    "transformers==4.57.6",
+    "transformers==5.0.0rc3",
     "wandb",
 ]
 
