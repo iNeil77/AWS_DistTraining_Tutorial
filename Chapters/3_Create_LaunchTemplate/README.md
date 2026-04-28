@@ -1,10 +1,10 @@
 # Create Optimized EC2 Launch Template for Multi-node Training
 
-In this chapter, we will create an EC2 launch template that is optimized for multi-node training workloads. This involves configuring the launch template to maximize network bandwidth, creating a swap partition on the NvMe instance storage (useful when loading large models and datasets), and mounting the FSX for Lustre storage to the instances. By creating a launch template with these optimizations, we can ensure that any instances launched using this template will be configured correctly and repeatably for our training workloads, saving time and effort in the future.
+In this chapter, we will create an EC2 launch template optimized for multi-node training workloads. This involves configuring the template to maximize network bandwidth, creating a swap partition on the NVMe instance storage (useful when loading large models and datasets), and mounting the FSx for Lustre storage. By creating a launch template with these optimizations, any instances launched from it will be configured correctly and repeatably for our training workloads.
 
 ## Steps
 
-**Step 1:** Create a new EC2 launch template. Go to the EC2 console, click on "Launch Templates" in the left-hand menu, and then click on "Create launch template". Provide a name and description for the launch template, and select the AMI that you created in the previous chapter (or any other AMI that you prefer). Choose an instance type that is suitable for your training workloads (e.g., p4d or p5 for large-scale training).
+**Step 1:** Create a new EC2 launch template. Go to the EC2 console, click on "Launch Templates" in the left-hand menu, and then click on "Create launch template". Provide a name and description, and select the AMI you created in the previous chapter (or any other AMI you prefer). Choose an instance type suitable for your training workloads (e.g., p4d or p5 for large-scale training).
 
 ![Create Launch Template](../../Assets/3_Create_LaunchTemplate/3_LaunchTemplate_Starter.png)
 
@@ -12,7 +12,7 @@ In this chapter, we will create an EC2 launch template that is optimized for mul
 
 ![Configure Subnet and Security Group](../../Assets/3_Create_LaunchTemplate/3_LaunchTemplate_NetworkBasic.png)
 
-**Step 3:** In the "Advanced network configuration" section inside network settings, add settings for multiple network cards to maximize network bandwidth for multi-node training and for communication with the FSX for Lustre storage. This is an involved step where a large number of bespoke configurations are plausible, but for simplicity we will add 4 network cards in total, with first network card configured with an EFA with ENA setup and the other 3 network cards configured with EFA only. You must make sure that the security groups and the subnet you select in these steps are consistent with the ones you created in the previous chapters.
+**Step 3:** In the "Advanced network configuration" section inside network settings, add settings for multiple network cards to maximize network bandwidth for multi-node training and communication with the FSx for Lustre storage. This is an involved step where many bespoke configurations are possible, but for simplicity we will add 4 network cards in total: the first configured with both EFA and ENA, and the remaining 3 configured with EFA only. Make sure the security groups and subnet you select are consistent with those created in the previous chapters.
 
 In this setup only the first network card can be assigned an IP address, and the other 3 network cards will be used for EFA communication only. This is a common setup for multi-node training workloads where the first network card is used for general communication and the other network cards are used for high-speed communication between instances using EFA. For other possible setups and configurations, please refer to the AWS documentation on [Maximizing EFA bandwidth](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa-acc-inst-types.html).
 
@@ -20,11 +20,11 @@ In this setup only the first network card can be assigned an IP address, and the
 
 ![Configure Network Cards](../../Assets/3_Create_LaunchTemplate/3_LaunchTemplate_NetworkAdvanced2.png)
 
-**Step 4:** In the "Storage (volumes)" section, configure the EBS volumes for the launch template. Make sure to set the bandwith and IOPS settings to an appropriate level for your training workloads. You can also add additional EBS volumes if needed for your training data or model checkpoints. However, our training setup will mainly rely on the FSX for Lustre storage for training data and model checkpoints, so we will not add additional EBS volumes in this step.
+**Step 4:** In the "Storage (volumes)" section, configure the EBS volumes for the launch template. Make sure to set the bandwidth and IOPS to appropriate levels for your training workloads. You can add additional EBS volumes if needed for training data or model checkpoints. However, our setup mainly relies on FSx for Lustre storage, so we will not add additional EBS volumes in this step.
 
-It is important to note the "Instance store (ephemeral)" section in the storage configuration. This section allows you to configure the instance store volumes that are physically attached to the instance. For certain instance types (e.g., p4d and p5), these instance store volumes are NvMe drives that can provide very high bandwidth and low latency storage, which can be beneficial for training workloads that require fast access to data. Thse can be used as a "scratch" storage for training workloads, where intermediateky processed versions of the training data can be stored for fast access during training.
+Note the "Instance store (ephemeral)" section in the storage configuration. This allows you to configure the instance store volumes that are physically attached to the instance. For certain instance types (e.g., p4d and p5), these are NVMe drives that provide very high bandwidth and low-latency storage, which can be beneficial for workloads requiring fast data access. They can be used as scratch storage where intermediately processed versions of the training data are stored for fast access during training.
 
-We will leverage this fast storage as a swap partition for our training workloads, which can be beneficial when loading large models and datasets that may not fit entirely in memory. To do this, we will create a swap file on the instance store volumes and configure the system to use it as swap space during training. This can help prevent out-of-memory errors and improve the overall performance of the training workloads.
+We will leverage this fast storage as a swap partition, which is beneficial when loading large models and datasets that may not fit entirely in memory. We create a swap file on the instance store volumes and configure the system to use it as swap space during training, helping prevent out-of-memory errors.
 
 ![Configure Storage](../../Assets/3_Create_LaunchTemplate/3_LaunchTemplate_Storage.png)
 
@@ -32,7 +32,7 @@ We will leverage this fast storage as a swap partition for our training workload
 
 ![Configure Cluster Placement Group](../../Assets/3_Create_LaunchTemplate/3_LaunchTemplate_Placement.png)
 
-**Step 6:** In the "Advanced details" section, add user data scripts to the launch template to automate the setup of the instances when they are launched. This can include commands to create a swap file on the instance store volumes and configure the system to use it as swap space, as well as commands to mount the FSX for Lustre storage to the instances.
+**Step 6:** In the "Advanced details" section, add user data scripts to the launch template to automate instance setup at launch time. This includes commands to create a swap file on the instance store volumes and configure it as swap space, as well as commands to mount the FSx for Lustre storage.
 
 ![Configure User Data](../../Assets/3_Create_LaunchTemplate/3_LaunchTemplate_UserScript.png)
 

@@ -1,12 +1,12 @@
 # Setup and Test EC2 Instance and Create Final EC2 AMI (Optional)
 
-This chapter will guide you through the process of setting up and testing an test EC2 instance, which we will initialize with the Deep Learning AMI (DLAMI). The DLAMI is a pre-built Amazon Machine Image (AMI) that comes with popular deep learning frameworks and tools pre-installed, along with important conveniences such as NVIDIA drivers, CUDA, CuDNN, and the GPU-enabled docker runtime. We will use this as a springboard to create our own custom AMI that contains important dependencies such as enroot.
+This chapter will guide you through the process of setting up and testing a test EC2 instance, which we will initialize with the Deep Learning AMI (DLAMI). The DLAMI is a pre-built Amazon Machine Image that comes with popular deep learning frameworks and tools pre-installed, along with important conveniences such as NVIDIA drivers, CUDA, cuDNN, and the GPU-enabled Docker runtime. We will use this as a springboard to create our own custom AMI that contains important dependencies such as enroot.
 
 For more information on the DLAMI, please refer to the [DLAMI documentation](https://docs.aws.amazon.com/dlami/latest/devguide/appendix-ami-release-notes.html). Additionally, a more programmatic way of creating custom AMIs is detailed in the documentation, which can be found [here](https://github.com/awslabs/awsome-distributed-training/tree/main/2.ami_and_containers/1.amazon_machine_image).
 
 ## Steps
 
-**Step 1:** Open the EC2 console and launch an instance with the DLAMI. You can find the DLAMI by searching for "Deep Learning AMI" in the AWS Marketplace when launching an instance. Choose the appropriate version based on your needs (e.g., Ubuntu, PyTorch, TensorFlow, etc.). We will use the Ubuntu version for this tutorial.
+**Step 1:** Open the EC2 console and launch an instance with the DLAMI. You can find it by searching for "Deep Learning AMI" in the AWS Marketplace when launching an instance. Choose the appropriate version based on your needs (e.g., Ubuntu, PyTorch, TensorFlow). We will use the Ubuntu version for this tutorial.
 
 ![Create EC2 Instance](../../Assets/0_Setup_TestEC2/0_EC2_Pane1.png)
 
@@ -14,7 +14,8 @@ For more information on the DLAMI, please refer to the [DLAMI documentation](htt
 
 **Step 2:** Install necessary dependencies and tools on the EC2 instance. This includes enroot and gh cli. You can follow the installation instructions for each of these tools from their respective documentation.
 
-```# Update package lists and existing packages
+```bash
+# Update package lists and existing packages
 sudo apt-get update && sudo apt-get upgrade -y
 ```
 
@@ -60,7 +61,7 @@ pip install boto3 botocore awscli \
      uv
 ```
 
-**Step 3:** Build the docker images for training and evaluating the reward model. You can find the Dockerfile for the reward model training [here](../../Environment/Axolotl.Dockerfile). We instrument the environment with the necessary dependencies for training and evaluating the reward model, including the Axolotl framework and its dependencies, as well as the reward-bench evaluation suite. Navigate to the directory containing the Dockerfile and build the image using the following command:
+**Step 3:** Build the Docker images for training and evaluating the reward model. You can find the Dockerfile for the reward model training [here](../../Environment/Axolotl.Dockerfile). The image is instrumented with the necessary dependencies for training and evaluating the reward model, including the Axolotl framework and the reward-bench evaluation suite. Navigate to the directory containing the Dockerfile and build the image using the following command:
 
 ```bash
 # Navigate to the Environment directory containing the Dockerfile
@@ -70,10 +71,10 @@ cd ../../Environment
 docker build -t username/reward_model_training:latest -f Axolotl.Dockerfile .
 ```
 
-**Step 4:** Cleanup the instance and create a custom AMI. After installing the necessary dependencies and tools, you can create a custom AMI from the instance. This will allow you to launch new instances with all the dependencies pre-installed, saving time and effort in the future. To create an AMI, go to the EC2 console, select the instance, and click on "Actions" > "Image and Templates" > "Create Image". Provide a name and description for the AMI and click "Create Image". Once the AMI is created, you can use it to launch new instances with the same configuration. Note that creating an AMI is optional, but it can be beneficial for streamlining the setup process in future chapters. If you choose not to create an AMI, you can simply repeat the installation steps on any new instances that you launch in the future.
+**Step 4:** Clean up the instance and create a custom AMI. After installing the necessary dependencies and tools, you can create a custom AMI from the instance. This allows you to launch new instances with all the dependencies pre-installed, saving time and effort in the future. To create an AMI, go to the EC2 console, select the instance, and click on "Actions" > "Image and Templates" > "Create Image". Provide a name and description for the AMI and click "Create Image". Once the AMI is created, you can use it to launch new instances with the same configuration. Note that creating an AMI is optional, but it can be beneficial for streamlining the setup process in future chapters. If you choose not to create an AMI, you can simply repeat the installation steps on any new instances you launch.
 
 ![Create AMI](../../Assets/0_Setup_TestEC2/0_EC2_Pane3.png)
 
 ![Create AMI](../../Assets/0_Setup_TestEC2/0_EC2_Pane4.png)
 
-Make sure to cleanup the instance before creating the AMI by removing any unnecessary files or data that may have been generated during the setup process. This will help reduce the size of the AMI and ensure that it only contains the necessary dependencies and tools for your training environment. You can use commands like `sudo apt-get clean` to remove cached package files and `rm -rf /path/to/unnecessary/files` to remove any other files that are not needed. Also purging the docker cache can help reduce the size of the AMI, which can be done using the command `docker system prune -a`. This will remove all unused images, containers, and networks, freeing up space on the instance before creating the AMI. Similarly, cleanup any dot folders in the home directory that may contain cached data or configuration files that are not needed for the training environment. This can be done using commands like `rm -rf ~/.cache` and `rm -rf ~/.config`. By cleaning up the instance before creating the AMI, you can ensure that the resulting AMI is as lean and efficient as possible, containing only the necessary dependencies and tools for your training environment.
+Make sure to clean up the instance before creating the AMI by removing any unnecessary files or data generated during setup. This helps reduce the AMI size and ensures it only contains the necessary dependencies. You can use `sudo apt-get clean` to remove cached package files and `rm -rf /path/to/unnecessary/files` to remove anything else that is not needed. Purging the Docker cache with `docker system prune -a` will remove all unused images, containers, and networks. Similarly, clean up any dot folders in the home directory that may contain cached data (e.g., `rm -rf ~/.cache` and `rm -rf ~/.config`). By cleaning up before creating the AMI, you can ensure the resulting image is as lean as possible.
