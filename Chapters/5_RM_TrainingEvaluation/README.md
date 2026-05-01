@@ -6,7 +6,7 @@ In this chapter, we will cover the training and evaluation of scalar reward mode
 
 **Step 1:** Prepare the local containerized training environment. This involves converting the Docker containers created in the first chapter to the enroot format. Enroot is a handy toolkit that turns traditional Docker containers into unprivileged sandboxes freed from the resource limits typically imposed on Docker containers by default. Its rootless model, along with plugins for popular cluster managers like Slurm, makes it a great fit for containerized multi-node training on the cloud.
 
-For this step, you can either convert your own container or use the pre-built Docker environment at [ineil77/axolotl-rm:23032026](https://hub.docker.com/repository/docker/ineil77/axolotl-rm/tags/22032026/).
+For this step, you can either convert your own container or use the pre-built Docker environment at [ineil77/axolotl-rm:01052026](https://hub.docker.com/repository/docker/ineil77/axolotl-rm/tags/01052026/).
 
 ```bash
 # Import the docker container to enroot format

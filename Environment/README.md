@@ -43,4 +43,4 @@ The image is compiled with `TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0 10.0 10.3+PTX"
 
 The tutorial uses [enroot](https://github.com/NVIDIA/enroot) to convert this Docker image into an unprivileged sandbox for multi-node training. See [Chapter 5](../Chapters/5_RM_TrainingEvaluation/README.md) for details on importing and running the container with `enroot`.
 
-A pre-built image is also available on Docker Hub at `ineil77/axolotl-rm:23032026`.
+A pre-built image is also available on Docker Hub at `ineil77/axolotl-rm:01052026`.
